@@ -1,0 +1,31 @@
+package com.movieticket.service;
+
+import com.movieticket.dao.MovieDAO;
+import com.movieticket.model.Movie;
+
+import java.util.List;
+
+public class MovieService {
+
+    private final MovieDAO movieDAO;
+
+    public MovieService() {
+        this.movieDAO = new MovieDAO();
+    }
+
+    public boolean addMovie(Movie movie) {
+        return movieDAO.addMovie(movie);
+    }
+
+    public List<Movie> getAllMovies() {
+        return movieDAO.getAllMovies();
+    }
+
+    public boolean updateMovie(Movie movie) {
+        return movieDAO.updateMovie(movie);
+    }
+
+    public boolean deleteMovie(int movieId) {
+        return movieDAO.deleteMovie(movieId);
+    }
+}
