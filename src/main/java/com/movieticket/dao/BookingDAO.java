@@ -9,17 +9,20 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Statement;
 
 public class BookingDAO {
 
-    public boolean addBooking(Booking booking) {
+    public int addBooking(Booking booking) {
 
         String sql = "INSERT INTO bookings " +
                 "(show_id, user_id, total_amount, booking_status) " +
                 "VALUES (?, ?, ?, ?)";
 
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(
+                     sql,
+                     Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, booking.getShowId());
             statement.setInt(2, booking.getUserId());
@@ -28,12 +31,20 @@ public class BookingDAO {
 
             int rowsInserted = statement.executeUpdate();
 
-            return rowsInserted > 0;
+            if (rowsInserted > 0) {
+
+                ResultSet resultSet = statement.getGeneratedKeys();
+
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            }
 
         } catch (SQLException e) {
             System.err.println("Database error: " + e.getMessage());
-            return false;
         }
+
+        return 0;
     }
     public List<Booking> getAllBookings() {
 

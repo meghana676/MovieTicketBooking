@@ -13,6 +13,10 @@ public class TheatreService {
         this.theatreDAO = new TheatreDAO();
     }
 
+    public TheatreService(TheatreDAO theatreDAO) {
+        this.theatreDAO = theatreDAO;
+    }
+
     public boolean addTheatre(Theatre theatre) {
         return theatreDAO.addTheatre(theatre);
     }

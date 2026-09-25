@@ -13,7 +13,7 @@ public class BookingService {
         this.bookingDAO = new BookingDAO();
     }
 
-    public boolean addBooking(Booking booking) {
+    public int addBooking(Booking booking) {
         return bookingDAO.addBooking(booking);
     }
 

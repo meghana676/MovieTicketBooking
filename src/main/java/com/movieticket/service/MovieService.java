@@ -13,6 +13,10 @@ public class MovieService {
         this.movieDAO = new MovieDAO();
     }
 
+    public MovieService(MovieDAO movieDAO) {
+        this.movieDAO = movieDAO;
+    }
+
     public boolean addMovie(Movie movie) {
         return movieDAO.addMovie(movie);
     }
