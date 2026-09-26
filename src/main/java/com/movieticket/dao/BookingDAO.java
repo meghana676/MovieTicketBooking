@@ -17,6 +17,9 @@ public class BookingDAO {
     private static final Logger LOGGER =
             Logger.getLogger(BookingDAO.class.getName());
 
+    private static final String UPDATE_BOOKING_STATUS =
+            "UPDATE bookings SET booking_status = ? WHERE booking_id = ?";
+
     private static final String INSERT_BOOKING =
             "INSERT INTO bookings " +
                     "(show_id, user_id, total_amount, booking_status) " +
@@ -90,4 +93,21 @@ public class BookingDAO {
 
         return bookings;
     }
+    public boolean updateBookingStatus(int bookingId, String status) {
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(UPDATE_BOOKING_STATUS)) {
+
+            statement.setString(1, status);
+            statement.setInt(2, bookingId);
+
+            return statement.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LOGGER.severe("Error updating booking status: " + e.getMessage());
+            return false;
+        }
+    }
+
 }

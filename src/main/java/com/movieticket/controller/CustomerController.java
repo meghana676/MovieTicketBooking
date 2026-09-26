@@ -1,10 +1,14 @@
 package com.movieticket.controller;
 
+import com.movieticket.model.BookedSeat;
+import com.movieticket.model.Booking;
+import com.movieticket.model.Payment;
 import com.movieticket.model.Show;
 import com.movieticket.model.User;
-import com.movieticket.service.ShowService;
-import com.movieticket.model.Booking;
+import com.movieticket.service.BookedSeatService;
 import com.movieticket.service.BookingService;
+import com.movieticket.service.PaymentService;
+import com.movieticket.service.ShowService;
 
 import java.util.List;
 import java.util.Scanner;
@@ -17,6 +21,8 @@ public class CustomerController {
 
     private final ShowService showService;
     private final BookingService bookingService;
+    private final PaymentService paymentService;
+    private final BookedSeatService bookedSeatService;
     private final Scanner scanner;
     private final User user;
 
@@ -24,6 +30,8 @@ public class CustomerController {
         this.user = user;
         this.showService = new ShowService();
         this.bookingService = new BookingService();
+        this.paymentService = new PaymentService();
+        this.bookedSeatService = new BookedSeatService();
         this.scanner = new Scanner(System.in);
     }
 
@@ -91,7 +99,7 @@ public class CustomerController {
         scanner.nextLine();
 
         LOGGER.info("Enter seat ID: ");
-        scanner.nextInt();
+        int seatId = scanner.nextInt();
         scanner.nextLine();
 
         Booking booking = new Booking(
@@ -100,19 +108,78 @@ public class CustomerController {
                 user.getUserId(),
                 null,
                 totalAmount,
-                "CONFIRMED"
+                "PENDING"
         );
 
         int bookingId = bookingService.addBooking(booking);
 
-        if (bookingId > 0) {
+        if (bookingId <= 0) {
+            LOGGER.warning("Booking could not be created.");
+            return;
+        }
 
-            LOGGER.info("Booking added successfully!");
-            LOGGER.info("Booking ID: " + bookingId);
+        LOGGER.info("Booking created successfully!");
+        LOGGER.info("Booking ID: " + bookingId);
+
+        LOGGER.info("Enter payment method: ");
+        String paymentMethod = scanner.nextLine();
+
+        LOGGER.info("Enter payment status (SUCCESS/FAILED): ");
+        String paymentStatus = scanner.nextLine();
+
+        Payment payment = new Payment(
+                0,
+                bookingId,
+                totalAmount,
+                paymentMethod,
+                paymentStatus,
+                null
+        );
+
+        boolean paymentAdded = paymentService.addPayment(payment);
+
+        if (!paymentAdded) {
+            LOGGER.warning("Payment could not be added.");
+            return;
+        }
+
+        LOGGER.info("Payment added successfully!");
+
+        if ("SUCCESS".equalsIgnoreCase(paymentStatus)) {
+
+            BookedSeat bookedSeat = new BookedSeat(
+                    0,
+                    seatId,
+                    bookingId
+            );
+
+            boolean seatBooked =
+                    bookedSeatService.addBookedSeat(bookedSeat);
+
+            if (!seatBooked) {
+                LOGGER.warning("Seat could not be booked.");
+                return;
+            }
+
+            boolean bookingConfirmed =
+                    bookingService.updateBookingStatus(
+                            bookingId,
+                            "CONFIRMED"
+                    );
+
+            if (bookingConfirmed) {
+                LOGGER.info("Payment successful!");
+                LOGGER.info("Seat booked successfully!");
+                LOGGER.info("Booking confirmed!");
+            } else {
+                LOGGER.warning("Booking could not be confirmed.");
+            }
 
         } else {
 
-            LOGGER.warning("Booking could not be added.");
+            LOGGER.warning("Payment failed.");
+            LOGGER.info("Booking remains PENDING.");
+            LOGGER.info("Seat was not booked.");
         }
     }
 }

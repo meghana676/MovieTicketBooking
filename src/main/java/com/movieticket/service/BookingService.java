@@ -42,4 +42,10 @@ public class BookingService {
     public List<Booking> getAllBookings() {
         return bookingDAO.getAllBookings();
     }
+    public boolean updateBookingStatus(int bookingId, String status) {
+        if (bookingId <= 0) return false;
+        if (status == null || status.trim().isEmpty()) return false;
+
+        return bookingDAO.updateBookingStatus(bookingId, status);
+    }
 }
