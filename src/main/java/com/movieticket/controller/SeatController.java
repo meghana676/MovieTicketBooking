@@ -5,8 +5,12 @@ import com.movieticket.service.SeatService;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class SeatController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(SeatController.class.getName());
 
     private final SeatService seatService;
     private final Scanner scanner;
@@ -20,14 +24,14 @@ public class SeatController {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("===== SEAT MANAGEMENT =====");
-            System.out.println("1. Add Seat");
-            System.out.println("2. View Seats");
-            System.out.println("3. Update Seat");
-            System.out.println("4. Delete Seat");
-            System.out.println("5. Back");
-            System.out.print("Enter your choice: ");
+            LOGGER.info("");
+            LOGGER.info("===== SEAT MANAGEMENT =====");
+            LOGGER.info("1. Add Seat");
+            LOGGER.info("2. View Seats");
+            LOGGER.info("3. Update Seat");
+            LOGGER.info("4. Delete Seat");
+            LOGGER.info("5. Back");
+            LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -54,24 +58,24 @@ public class SeatController {
                     return;
 
                 default:
-                    System.out.println("Invalid choice.");
+                    LOGGER.warning("Invalid choice.");
             }
         }
     }
 
     private void addSeat() {
 
-        System.out.print("Enter theatre ID: ");
+        LOGGER.info("Enter theatre ID: ");
         int theatreId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter seat number: ");
+        LOGGER.info("Enter seat number: ");
         String seatNumber = scanner.nextLine();
 
-        System.out.print("Enter seat type: ");
+        LOGGER.info("Enter seat type: ");
         String seatType = scanner.nextLine();
 
-        System.out.print("Enter price: ");
+        LOGGER.info("Enter price: ");
         double price = scanner.nextDouble();
         scanner.nextLine();
 
@@ -84,26 +88,29 @@ public class SeatController {
         );
 
         if (seatService.addSeat(seat)) {
-            System.out.println("Seat added successfully!");
+
+            LOGGER.info("Seat added successfully!");
+
         } else {
-            System.out.println("Seat could not be added.");
+
+            LOGGER.warning("Seat could not be added.");
         }
     }
 
     private void viewSeats() {
 
-        System.out.print("Enter theatre ID: ");
+        LOGGER.info("Enter theatre ID: ");
         int theatreId = scanner.nextInt();
         scanner.nextLine();
 
         List<Seat> seats = seatService.getSeatsByTheatre(theatreId);
 
-        System.out.println();
-        System.out.println("===== SEATS =====");
+        LOGGER.info("");
+        LOGGER.info("===== SEATS =====");
 
         for (Seat seat : seats) {
 
-            System.out.println(
+            LOGGER.info(
                     seat.getSeatId() + " | " +
                             seat.getTheatreId() + " | " +
                             seat.getSeatNumber() + " | " +
@@ -115,21 +122,21 @@ public class SeatController {
 
     private void updateSeat() {
 
-        System.out.print("Enter seat ID: ");
+        LOGGER.info("Enter seat ID: ");
         int seatId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter theatre ID: ");
+        LOGGER.info("Enter theatre ID: ");
         int theatreId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter new seat number: ");
+        LOGGER.info("Enter new seat number: ");
         String seatNumber = scanner.nextLine();
 
-        System.out.print("Enter new seat type: ");
+        LOGGER.info("Enter new seat type: ");
         String seatType = scanner.nextLine();
 
-        System.out.print("Enter new price: ");
+        LOGGER.info("Enter new price: ");
         double price = scanner.nextDouble();
         scanner.nextLine();
 
@@ -142,22 +149,28 @@ public class SeatController {
         );
 
         if (seatService.updateSeat(seat)) {
-            System.out.println("Seat updated successfully!");
+
+            LOGGER.info("Seat updated successfully!");
+
         } else {
-            System.out.println("Seat could not be updated.");
+
+            LOGGER.warning("Seat could not be updated.");
         }
     }
 
     private void deleteSeat() {
 
-        System.out.print("Enter seat ID: ");
+        LOGGER.info("Enter seat ID: ");
         int seatId = scanner.nextInt();
         scanner.nextLine();
 
         if (seatService.deleteSeat(seatId)) {
-            System.out.println("Seat deleted successfully!");
+
+            LOGGER.info("Seat deleted successfully!");
+
         } else {
-            System.out.println("Seat could not be deleted.");
+
+            LOGGER.warning("Seat could not be deleted.");
         }
     }
 }

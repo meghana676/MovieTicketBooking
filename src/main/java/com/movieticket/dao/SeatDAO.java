@@ -9,17 +9,36 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class SeatDAO {
 
+    private static final Logger LOGGER =
+            Logger.getLogger(SeatDAO.class.getName());
+
+    private static final String INSERT_SEAT =
+            "INSERT INTO seats (theatre_id, seat_number, seat_type, price) " +
+                    "VALUES (?, ?, ?, ?)";
+
+    private static final String GET_SEATS_BY_THEATRE =
+            "SELECT * FROM seats WHERE theatre_id = ?";
+
+    private static final String UPDATE_SEAT =
+            "UPDATE seats SET " +
+                    "seat_number = ?, " +
+                    "seat_type = ?, " +
+                    "price = ? " +
+                    "WHERE seat_id = ?";
+
+    private static final String DELETE_SEAT =
+            "DELETE FROM seats WHERE seat_id = ?";
+
+
     public boolean addSeat(Seat seat) {
 
-        String sql = "INSERT INTO seats " +
-                "(theatre_id, seat_number, seat_type, price) " +
-                "VALUES (?, ?, ?, ?)";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(INSERT_SEAT)) {
 
             statement.setInt(1, seat.getTheatreId());
             statement.setString(2, seat.getSeatNumber());
@@ -31,18 +50,21 @@ public class SeatDAO {
             return rowsInserted > 0;
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Error adding seat: " + e.getMessage());
+
             return false;
         }
     }
+
+
     public List<Seat> getSeatsByTheatre(int theatreId) {
 
         List<Seat> seats = new ArrayList<>();
 
-        String sql = "SELECT * FROM seats WHERE theatre_id = ?";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(GET_SEATS_BY_THEATRE)) {
 
             statement.setInt(1, theatreId);
 
@@ -62,21 +84,19 @@ public class SeatDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Database error: " + e.getMessage());
         }
 
         return seats;
     }
+
+
     public boolean updateSeat(Seat seat) {
 
-        String sql = "UPDATE seats SET " +
-                "seat_number = ?, " +
-                "seat_type = ?, " +
-                "price = ? " +
-                "WHERE seat_id = ?";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(UPDATE_SEAT)) {
 
             statement.setString(1, seat.getSeatNumber());
             statement.setString(2, seat.getSeatType());
@@ -88,16 +108,19 @@ public class SeatDAO {
             return rowsUpdated > 0;
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Error updating seat: " + e.getMessage());
+
             return false;
         }
     }
+
+
     public boolean deleteSeat(int seatId) {
 
-        String sql = "DELETE FROM seats WHERE seat_id = ?";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(DELETE_SEAT)) {
 
             statement.setInt(1, seatId);
 
@@ -106,7 +129,9 @@ public class SeatDAO {
             return rowsDeleted > 0;
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Error deleting seat: " + e.getMessage());
+
             return false;
         }
     }

@@ -7,8 +7,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class ShowController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(ShowController.class.getName());
 
     private final ShowService showService;
     private final Scanner scanner;
@@ -22,14 +26,14 @@ public class ShowController {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("===== SHOW MANAGEMENT =====");
-            System.out.println("1. Add Show");
-            System.out.println("2. View Shows");
-            System.out.println("3. Update Show");
-            System.out.println("4. Delete Show");
-            System.out.println("5. Back");
-            System.out.print("Enter your choice: ");
+            LOGGER.info("");
+            LOGGER.info("===== SHOW MANAGEMENT =====");
+            LOGGER.info("1. Add Show");
+            LOGGER.info("2. View Shows");
+            LOGGER.info("3. Update Show");
+            LOGGER.info("4. Delete Show");
+            LOGGER.info("5. Back");
+            LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -56,28 +60,28 @@ public class ShowController {
                     return;
 
                 default:
-                    System.out.println("Invalid choice.");
+                    LOGGER.warning("Invalid choice.");
             }
         }
     }
 
     private void addShow() {
 
-        System.out.print("Enter theatre ID: ");
+        LOGGER.info("Enter theatre ID: ");
         int theatreId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter movie ID: ");
+        LOGGER.info("Enter movie ID: ");
         int movieId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter show date (YYYY-MM-DD): ");
+        LOGGER.info("Enter show date (YYYY-MM-DD): ");
         LocalDate showDate = LocalDate.parse(scanner.nextLine());
 
-        System.out.print("Enter start time (HH:MM): ");
+        LOGGER.info("Enter start time (HH:MM): ");
         LocalTime startTime = LocalTime.parse(scanner.nextLine());
 
-        System.out.print("Enter end time (HH:MM): ");
+        LOGGER.info("Enter end time (HH:MM): ");
         LocalTime endTime = LocalTime.parse(scanner.nextLine());
 
         Show show = new Show(
@@ -90,9 +94,12 @@ public class ShowController {
         );
 
         if (showService.addShow(show)) {
-            System.out.println("Show added successfully!");
+
+            LOGGER.info("Show added successfully!");
+
         } else {
-            System.out.println("Show could not be added.");
+
+            LOGGER.warning("Show could not be added.");
         }
     }
 
@@ -100,12 +107,12 @@ public class ShowController {
 
         List<Show> shows = showService.getAllShows();
 
-        System.out.println();
-        System.out.println("===== SHOWS =====");
+        LOGGER.info("");
+        LOGGER.info("===== SHOWS =====");
 
         for (Show show : shows) {
 
-            System.out.println(
+            LOGGER.info(
                     show.getShowId() + " | " +
                             show.getTheatreId() + " | " +
                             show.getMovieId() + " | " +
@@ -118,25 +125,25 @@ public class ShowController {
 
     private void updateShow() {
 
-        System.out.print("Enter show ID: ");
+        LOGGER.info("Enter show ID: ");
         int showId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter theatre ID: ");
+        LOGGER.info("Enter theatre ID: ");
         int theatreId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter movie ID: ");
+        LOGGER.info("Enter movie ID: ");
         int movieId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter new show date (YYYY-MM-DD): ");
+        LOGGER.info("Enter new show date (YYYY-MM-DD): ");
         LocalDate showDate = LocalDate.parse(scanner.nextLine());
 
-        System.out.print("Enter new start time (HH:MM): ");
+        LOGGER.info("Enter new start time (HH:MM): ");
         LocalTime startTime = LocalTime.parse(scanner.nextLine());
 
-        System.out.print("Enter new end time (HH:MM): ");
+        LOGGER.info("Enter new end time (HH:MM): ");
         LocalTime endTime = LocalTime.parse(scanner.nextLine());
 
         Show show = new Show(
@@ -149,22 +156,28 @@ public class ShowController {
         );
 
         if (showService.updateShow(show)) {
-            System.out.println("Show updated successfully!");
+
+            LOGGER.info("Show updated successfully!");
+
         } else {
-            System.out.println("Show could not be updated.");
+
+            LOGGER.warning("Show could not be updated.");
         }
     }
 
     private void deleteShow() {
 
-        System.out.print("Enter show ID: ");
+        LOGGER.info("Enter show ID: ");
         int showId = scanner.nextInt();
         scanner.nextLine();
 
         if (showService.deleteShow(showId)) {
-            System.out.println("Show deleted successfully!");
+
+            LOGGER.info("Show deleted successfully!");
+
         } else {
-            System.out.println("Show could not be deleted.");
+
+            LOGGER.warning("Show could not be deleted.");
         }
     }
 }

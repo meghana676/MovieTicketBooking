@@ -13,7 +13,32 @@ public class ShowService {
         this.showDAO = new ShowDAO();
     }
 
+    public ShowService(ShowDAO showDAO) {
+        this.showDAO = showDAO;
+    }
+
     public boolean addShow(Show show) {
+
+        if (show.getTheatreId() <= 0) {
+            return false;
+        }
+
+        if (show.getMovieId() <= 0) {
+            return false;
+        }
+
+        if (show.getShowDate() == null) {
+            return false;
+        }
+
+        if (show.getStartTime() == null) {
+            return false;
+        }
+
+        if (show.getEndTime() == null) {
+            return false;
+        }
+
         return showDAO.addShow(show);
     }
 
@@ -22,10 +47,40 @@ public class ShowService {
     }
 
     public boolean updateShow(Show show) {
+
+        if (show.getShowId() <= 0) {
+            return false;
+        }
+
+        if (show.getTheatreId() <= 0) {
+            return false;
+        }
+
+        if (show.getMovieId() <= 0) {
+            return false;
+        }
+
+        if (show.getShowDate() == null) {
+            return false;
+        }
+
+        if (show.getStartTime() == null) {
+            return false;
+        }
+
+        if (show.getEndTime() == null) {
+            return false;
+        }
+
         return showDAO.updateShow(show);
     }
 
     public boolean deleteShow(int showId) {
+
+        if (showId <= 0) {
+            return false;
+        }
+
         return showDAO.deleteShow(showId);
     }
 }

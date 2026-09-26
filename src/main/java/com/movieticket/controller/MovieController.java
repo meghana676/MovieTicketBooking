@@ -6,8 +6,12 @@ import com.movieticket.service.MovieService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class MovieController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(MovieController.class.getName());
 
     private final MovieService movieService;
     private final Scanner scanner;
@@ -21,15 +25,15 @@ public class MovieController {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("===== MOVIE MANAGEMENT =====");
-            System.out.println("1. Add Movie");
-            System.out.println("2. View Movies");
-            System.out.println("3. Update Movie");
-            System.out.println("4. Delete Movie");
-            System.out.println("5. Back");
+            LOGGER.info("");
+            LOGGER.info("===== MOVIE MANAGEMENT =====");
+            LOGGER.info("1. Add Movie");
+            LOGGER.info("2. View Movies");
+            LOGGER.info("3. Update Movie");
+            LOGGER.info("4. Delete Movie");
+            LOGGER.info("5. Back");
 
-            System.out.print("Enter your choice: ");
+            LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -56,27 +60,27 @@ public class MovieController {
                     return;
 
                 default:
-                    System.out.println("Invalid choice.");
+                    LOGGER.warning("Invalid choice.");
             }
         }
     }
 
     private void addMovie() {
 
-        System.out.print("Enter title: ");
+        LOGGER.info("Enter title: ");
         String title = scanner.nextLine();
 
-        System.out.print("Enter language: ");
+        LOGGER.info("Enter language: ");
         String language = scanner.nextLine();
 
-        System.out.print("Enter genre: ");
+        LOGGER.info("Enter genre: ");
         String genre = scanner.nextLine();
 
-        System.out.print("Enter duration in minutes: ");
+        LOGGER.info("Enter duration in minutes: ");
         int duration = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter release date (YYYY-MM-DD): ");
+        LOGGER.info("Enter release date (YYYY-MM-DD): ");
         LocalDate releaseDate = LocalDate.parse(scanner.nextLine());
 
         Movie movie = new Movie(
@@ -89,9 +93,12 @@ public class MovieController {
         );
 
         if (movieService.addMovie(movie)) {
-            System.out.println("Movie added successfully!");
+
+            LOGGER.info("Movie added successfully!");
+
         } else {
-            System.out.println("Movie could not be added.");
+
+            LOGGER.warning("Movie could not be added.");
         }
     }
 
@@ -99,11 +106,12 @@ public class MovieController {
 
         List<Movie> movies = movieService.getAllMovies();
 
-        System.out.println();
-        System.out.println("===== MOVIES =====");
+        LOGGER.info("");
+        LOGGER.info("===== MOVIES =====");
 
         for (Movie movie : movies) {
-            System.out.println(
+
+            LOGGER.info(
                     movie.getMovieId() + " | " +
                             movie.getTitle() + " | " +
                             movie.getLanguage() + " | " +
@@ -116,24 +124,24 @@ public class MovieController {
 
     private void updateMovie() {
 
-        System.out.print("Enter movie ID: ");
+        LOGGER.info("Enter movie ID: ");
         int movieId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter new title: ");
+        LOGGER.info("Enter new title: ");
         String title = scanner.nextLine();
 
-        System.out.print("Enter new language: ");
+        LOGGER.info("Enter new language: ");
         String language = scanner.nextLine();
 
-        System.out.print("Enter new genre: ");
+        LOGGER.info("Enter new genre: ");
         String genre = scanner.nextLine();
 
-        System.out.print("Enter new duration in minutes: ");
+        LOGGER.info("Enter new duration in minutes: ");
         int duration = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter new release date (YYYY-MM-DD): ");
+        LOGGER.info("Enter new release date (YYYY-MM-DD): ");
         LocalDate releaseDate = LocalDate.parse(scanner.nextLine());
 
         Movie movie = new Movie(
@@ -146,22 +154,28 @@ public class MovieController {
         );
 
         if (movieService.updateMovie(movie)) {
-            System.out.println("Movie updated successfully!");
+
+            LOGGER.info("Movie updated successfully!");
+
         } else {
-            System.out.println("Movie could not be updated.");
+
+            LOGGER.warning("Movie could not be updated.");
         }
     }
 
     private void deleteMovie() {
 
-        System.out.print("Enter movie ID: ");
+        LOGGER.info("Enter movie ID: ");
         int movieId = scanner.nextInt();
         scanner.nextLine();
 
         if (movieService.deleteMovie(movieId)) {
-            System.out.println("Movie deleted successfully!");
+
+            LOGGER.info("Movie deleted successfully!");
+
         } else {
-            System.out.println("Movie could not be deleted.");
+
+            LOGGER.warning("Movie could not be deleted.");
         }
     }
 }

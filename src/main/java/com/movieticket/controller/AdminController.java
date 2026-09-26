@@ -1,9 +1,12 @@
 package com.movieticket.controller;
 
 import java.util.Scanner;
-import com.movieticket.controller.MovieController;
+import java.util.logging.Logger;
 
 public class AdminController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(AdminController.class.getName());
 
     public void showMenu() {
 
@@ -11,17 +14,17 @@ public class AdminController {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("===== ADMIN MENU =====");
-            System.out.println("1. Manage Movies");
-            System.out.println("2. Manage Theatres");
-            System.out.println("3. Manage Seats");
-            System.out.println("4. Manage Shows");
-            System.out.println("5. View Bookings");
-            System.out.println("6. View Payments");
-            System.out.println("7. Logout");
+            LOGGER.info("");
+            LOGGER.info("===== ADMIN MENU =====");
+            LOGGER.info("1. Manage Movies");
+            LOGGER.info("2. Manage Theatres");
+            LOGGER.info("3. Manage Seats");
+            LOGGER.info("4. Manage Shows");
+            LOGGER.info("5. View Bookings");
+            LOGGER.info("6. View Payments");
+            LOGGER.info("7. Logout");
 
-            System.out.print("Enter your choice: ");
+            LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
 
@@ -58,11 +61,11 @@ public class AdminController {
                     break;
 
                 case 7:
-                    System.out.println("Logging out...");
+                    LOGGER.info("Logging out...");
                     return;
 
                 default:
-                    System.out.println("Invalid choice.");
+                    LOGGER.warning("Invalid choice.");
             }
         }
     }

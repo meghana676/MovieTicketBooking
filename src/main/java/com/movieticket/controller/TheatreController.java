@@ -5,8 +5,12 @@ import com.movieticket.service.TheatreService;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class TheatreController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(TheatreController.class.getName());
 
     private final TheatreService theatreService;
     private final Scanner scanner;
@@ -20,14 +24,14 @@ public class TheatreController {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("===== THEATRE MANAGEMENT =====");
-            System.out.println("1. Add Theatre");
-            System.out.println("2. View Theatres");
-            System.out.println("3. Update Theatre");
-            System.out.println("4. Delete Theatre");
-            System.out.println("5. Back");
-            System.out.print("Enter your choice: ");
+            LOGGER.info("");
+            LOGGER.info("===== THEATRE MANAGEMENT =====");
+            LOGGER.info("1. Add Theatre");
+            LOGGER.info("2. View Theatres");
+            LOGGER.info("3. Update Theatre");
+            LOGGER.info("4. Delete Theatre");
+            LOGGER.info("5. Back");
+            LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -54,23 +58,23 @@ public class TheatreController {
                     return;
 
                 default:
-                    System.out.println("Invalid choice.");
+                    LOGGER.warning("Invalid choice.");
             }
         }
     }
 
     private void addTheatre() {
 
-        System.out.print("Enter theatre name: ");
+        LOGGER.info("Enter theatre name: ");
         String name = scanner.nextLine();
 
-        System.out.print("Enter city: ");
+        LOGGER.info("Enter city: ");
         String city = scanner.nextLine();
 
-        System.out.print("Enter address: ");
+        LOGGER.info("Enter address: ");
         String address = scanner.nextLine();
 
-        System.out.print("Enter total seats: ");
+        LOGGER.info("Enter total seats: ");
         int totalSeats = scanner.nextInt();
         scanner.nextLine();
 
@@ -83,9 +87,12 @@ public class TheatreController {
         );
 
         if (theatreService.addTheatre(theatre)) {
-            System.out.println("Theatre added successfully!");
+
+            LOGGER.info("Theatre added successfully!");
+
         } else {
-            System.out.println("Theatre could not be added.");
+
+            LOGGER.warning("Theatre could not be added.");
         }
     }
 
@@ -93,12 +100,12 @@ public class TheatreController {
 
         List<Theatre> theatres = theatreService.getAllTheatres();
 
-        System.out.println();
-        System.out.println("===== THEATRES =====");
+        LOGGER.info("");
+        LOGGER.info("===== THEATRES =====");
 
         for (Theatre theatre : theatres) {
 
-            System.out.println(
+            LOGGER.info(
                     theatre.getTheatreId() + " | " +
                             theatre.getName() + " | " +
                             theatre.getCity() + " | " +
@@ -110,20 +117,20 @@ public class TheatreController {
 
     private void updateTheatre() {
 
-        System.out.print("Enter theatre ID: ");
+        LOGGER.info("Enter theatre ID: ");
         int theatreId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter new theatre name: ");
+        LOGGER.info("Enter new theatre name: ");
         String name = scanner.nextLine();
 
-        System.out.print("Enter new city: ");
+        LOGGER.info("Enter new city: ");
         String city = scanner.nextLine();
 
-        System.out.print("Enter new address: ");
+        LOGGER.info("Enter new address: ");
         String address = scanner.nextLine();
 
-        System.out.print("Enter new total seats: ");
+        LOGGER.info("Enter new total seats: ");
         int totalSeats = scanner.nextInt();
         scanner.nextLine();
 
@@ -136,22 +143,28 @@ public class TheatreController {
         );
 
         if (theatreService.updateTheatre(theatre)) {
-            System.out.println("Theatre updated successfully!");
+
+            LOGGER.info("Theatre updated successfully!");
+
         } else {
-            System.out.println("Theatre could not be updated.");
+
+            LOGGER.warning("Theatre could not be updated.");
         }
     }
 
     private void deleteTheatre() {
 
-        System.out.print("Enter theatre ID: ");
+        LOGGER.info("Enter theatre ID: ");
         int theatreId = scanner.nextInt();
         scanner.nextLine();
 
         if (theatreService.deleteTheatre(theatreId)) {
-            System.out.println("Theatre deleted successfully!");
+
+            LOGGER.info("Theatre deleted successfully!");
+
         } else {
-            System.out.println("Theatre could not be deleted.");
+
+            LOGGER.warning("Theatre could not be deleted.");
         }
     }
 }

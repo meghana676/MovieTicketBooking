@@ -5,17 +5,18 @@ import com.movieticket.model.User;
 import com.movieticket.service.ShowService;
 import com.movieticket.model.Booking;
 import com.movieticket.service.BookingService;
-import com.movieticket.model.BookedSeat;
-import com.movieticket.service.BookedSeatService;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class CustomerController {
 
+    private static final Logger LOGGER =
+            Logger.getLogger(CustomerController.class.getName());
+
     private final ShowService showService;
     private final BookingService bookingService;
-    private final BookedSeatService bookedSeatService;
     private final Scanner scanner;
     private final User user;
 
@@ -23,19 +24,19 @@ public class CustomerController {
         this.user = user;
         this.showService = new ShowService();
         this.bookingService = new BookingService();
-        this.bookedSeatService = new BookedSeatService();
         this.scanner = new Scanner(System.in);
     }
+
     public void showMenu() {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("===== CUSTOMER MENU =====");
-            System.out.println("1. View Shows");
-            System.out.println("2. Book Show");
-            System.out.println("3. Back");
-            System.out.print("Enter your choice: ");
+            LOGGER.info("");
+            LOGGER.info("===== CUSTOMER MENU =====");
+            LOGGER.info("1. View Shows");
+            LOGGER.info("2. Book Show");
+            LOGGER.info("3. Back");
+            LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -52,8 +53,9 @@ public class CustomerController {
 
                 case 3:
                     return;
+
                 default:
-                    System.out.println("Invalid choice.");
+                    LOGGER.warning("Invalid choice.");
             }
         }
     }
@@ -62,12 +64,12 @@ public class CustomerController {
 
         List<Show> shows = showService.getAllShows();
 
-        System.out.println();
-        System.out.println("===== AVAILABLE SHOWS =====");
+        LOGGER.info("");
+        LOGGER.info("===== AVAILABLE SHOWS =====");
 
         for (Show show : shows) {
 
-            System.out.println(
+            LOGGER.info(
                     show.getShowId() + " | " +
                             show.getTheatreId() + " | " +
                             show.getMovieId() + " | " +
@@ -77,18 +79,19 @@ public class CustomerController {
             );
         }
     }
+
     private void bookShow() {
 
-        System.out.print("Enter show ID: ");
+        LOGGER.info("Enter show ID: ");
         int showId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter total amount: ");
+        LOGGER.info("Enter total amount: ");
         double totalAmount = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter seat ID: ");
-        int seatId = scanner.nextInt();
+        LOGGER.info("Enter seat ID: ");
+        scanner.nextInt();
         scanner.nextLine();
 
         Booking booking = new Booking(
@@ -103,10 +106,13 @@ public class CustomerController {
         int bookingId = bookingService.addBooking(booking);
 
         if (bookingId > 0) {
-            System.out.println("Booking added successfully!");
-            System.out.println("Booking ID: " + bookingId);
+
+            LOGGER.info("Booking added successfully!");
+            LOGGER.info("Booking ID: " + bookingId);
+
         } else {
-            System.out.println("Booking could not be added.");
+
+            LOGGER.warning("Booking could not be added.");
         }
     }
 }

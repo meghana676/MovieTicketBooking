@@ -9,17 +9,27 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class BookedSeatDAO {
 
+    private static final Logger LOGGER =
+            Logger.getLogger(BookedSeatDAO.class.getName());
+
+    private static final String INSERT_BOOKED_SEAT =
+            "INSERT INTO booked_seats " +
+                    "(seat_id, booking_id) " +
+                    "VALUES (?, ?)";
+
+    private static final String GET_BOOKED_SEATS_BY_BOOKING =
+            "SELECT * FROM booked_seats WHERE booking_id = ?";
+
+
     public boolean addBookedSeat(BookedSeat bookedSeat) {
 
-        String sql = "INSERT INTO booked_seats " +
-                "(seat_id, booking_id) " +
-                "VALUES (?, ?)";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(INSERT_BOOKED_SEAT)) {
 
             statement.setInt(1, bookedSeat.getSeatId());
             statement.setInt(2, bookedSeat.getBookingId());
@@ -29,18 +39,22 @@ public class BookedSeatDAO {
             return rowsInserted > 0;
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Error adding booked seat: " + e.getMessage());
+
             return false;
         }
     }
+
+
     public List<BookedSeat> getBookedSeatsByBooking(int bookingId) {
 
         List<BookedSeat> bookedSeats = new ArrayList<>();
 
-        String sql = "SELECT * FROM booked_seats WHERE booking_id = ?";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(
+                             GET_BOOKED_SEATS_BY_BOOKING)) {
 
             statement.setInt(1, bookingId);
 
@@ -58,7 +72,8 @@ public class BookedSeatDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Database error: " + e.getMessage());
         }
 
         return bookedSeats;

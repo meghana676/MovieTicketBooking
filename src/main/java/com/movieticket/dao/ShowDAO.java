@@ -9,17 +9,39 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class ShowDAO {
 
+    private static final Logger LOGGER =
+            Logger.getLogger(ShowDAO.class.getName());
+
+    private static final String INSERT_SHOW =
+            "INSERT INTO shows " +
+                    "(theatre_id, movie_id, show_date, start_time, end_time) " +
+                    "VALUES (?, ?, ?, ?, ?)";
+
+    private static final String GET_ALL_SHOWS =
+            "SELECT * FROM shows";
+
+    private static final String UPDATE_SHOW =
+            "UPDATE shows SET " +
+                    "theatre_id = ?, " +
+                    "movie_id = ?, " +
+                    "show_date = ?, " +
+                    "start_time = ?, " +
+                    "end_time = ? " +
+                    "WHERE show_id = ?";
+
+    private static final String DELETE_SHOW =
+            "DELETE FROM shows WHERE show_id = ?";
+
+
     public boolean addShow(Show show) {
 
-        String sql = "INSERT INTO shows " +
-                "(theatre_id, movie_id, show_date, start_time, end_time) " +
-                "VALUES (?, ?, ?, ?, ?)";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(INSERT_SHOW)) {
 
             statement.setInt(1, show.getTheatreId());
             statement.setInt(2, show.getMovieId());
@@ -41,18 +63,21 @@ public class ShowDAO {
             return rowsInserted > 0;
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Error adding show: " + e.getMessage());
+
             return false;
         }
     }
+
+
     public List<Show> getAllShows() {
 
         List<Show> shows = new ArrayList<>();
 
-        String sql = "SELECT * FROM shows";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
+             PreparedStatement statement =
+                     connection.prepareStatement(GET_ALL_SHOWS);
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -70,23 +95,19 @@ public class ShowDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Database error: " + e.getMessage());
         }
 
         return shows;
     }
+
+
     public boolean updateShow(Show show) {
 
-        String sql = "UPDATE shows SET " +
-                "theatre_id = ?, " +
-                "movie_id = ?, " +
-                "show_date = ?, " +
-                "start_time = ?, " +
-                "end_time = ? " +
-                "WHERE show_id = ?";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(UPDATE_SHOW)) {
 
             statement.setInt(1, show.getTheatreId());
             statement.setInt(2, show.getMovieId());
@@ -109,16 +130,19 @@ public class ShowDAO {
             return rowsUpdated > 0;
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Error updating show: " + e.getMessage());
+
             return false;
         }
     }
+
+
     public boolean deleteShow(int showId) {
 
-        String sql = "DELETE FROM shows WHERE show_id = ?";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(DELETE_SHOW)) {
 
             statement.setInt(1, showId);
 
@@ -127,7 +151,9 @@ public class ShowDAO {
             return rowsDeleted > 0;
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Error deleting show: " + e.getMessage());
+
             return false;
         }
     }

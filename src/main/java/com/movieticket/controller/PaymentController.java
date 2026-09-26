@@ -4,8 +4,12 @@ import com.movieticket.model.Payment;
 import com.movieticket.service.PaymentService;
 
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class PaymentController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(PaymentController.class.getName());
 
     private final PaymentService paymentService;
     private final Scanner scanner;
@@ -19,11 +23,11 @@ public class PaymentController {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("===== PAYMENT MANAGEMENT =====");
-            System.out.println("1. Add Payment");
-            System.out.println("2. Back");
-            System.out.print("Enter your choice: ");
+            LOGGER.info("");
+            LOGGER.info("===== PAYMENT MANAGEMENT =====");
+            LOGGER.info("1. Add Payment");
+            LOGGER.info("2. Back");
+            LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -38,25 +42,25 @@ public class PaymentController {
                     return;
 
                 default:
-                    System.out.println("Invalid choice.");
+                    LOGGER.warning("Invalid choice.");
             }
         }
     }
 
     private void addPayment() {
 
-        System.out.print("Enter booking ID: ");
+        LOGGER.info("Enter booking ID: ");
         int bookingId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter amount: ");
+        LOGGER.info("Enter amount: ");
         double amount = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter payment method: ");
+        LOGGER.info("Enter payment method: ");
         String paymentMethod = scanner.nextLine();
 
-        System.out.print("Enter payment status: ");
+        LOGGER.info("Enter payment status: ");
         String paymentStatus = scanner.nextLine();
 
         Payment payment = new Payment(
@@ -69,9 +73,12 @@ public class PaymentController {
         );
 
         if (paymentService.addPayment(payment)) {
-            System.out.println("Payment added successfully!");
+
+            LOGGER.info("Payment added successfully!");
+
         } else {
-            System.out.println("Payment could not be added.");
+
+            LOGGER.warning("Payment could not be added.");
         }
     }
 }

@@ -10,19 +10,29 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Statement;
+import java.util.logging.Logger;
 
 public class BookingDAO {
 
+    private static final Logger LOGGER =
+            Logger.getLogger(BookingDAO.class.getName());
+
+    private static final String INSERT_BOOKING =
+            "INSERT INTO bookings " +
+                    "(show_id, user_id, total_amount, booking_status) " +
+                    "VALUES (?, ?, ?, ?)";
+
+    private static final String GET_ALL_BOOKINGS =
+            "SELECT * FROM bookings";
+
+
     public int addBooking(Booking booking) {
 
-        String sql = "INSERT INTO bookings " +
-                "(show_id, user_id, total_amount, booking_status) " +
-                "VALUES (?, ?, ?, ?)";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     sql,
-                     Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(
+                             INSERT_BOOKING,
+                             Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, booking.getShowId());
             statement.setInt(2, booking.getUserId());
@@ -41,19 +51,21 @@ public class BookingDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Error adding booking: " + e.getMessage());
         }
 
         return 0;
     }
+
+
     public List<Booking> getAllBookings() {
 
         List<Booking> bookings = new ArrayList<>();
 
-        String sql = "SELECT * FROM bookings";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
+             PreparedStatement statement =
+                     connection.prepareStatement(GET_ALL_BOOKINGS);
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -62,7 +74,8 @@ public class BookingDAO {
                         resultSet.getInt("booking_id"),
                         resultSet.getInt("show_id"),
                         resultSet.getInt("user_id"),
-                        resultSet.getTimestamp("booking_date").toLocalDateTime(),
+                        resultSet.getTimestamp("booking_date")
+                                .toLocalDateTime(),
                         resultSet.getDouble("total_amount"),
                         resultSet.getString("booking_status")
                 );
@@ -71,7 +84,8 @@ public class BookingDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Database error: " + e.getMessage());
         }
 
         return bookings;

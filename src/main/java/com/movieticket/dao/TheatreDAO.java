@@ -9,17 +9,37 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class TheatreDAO {
 
+    private static final Logger LOGGER =
+            Logger.getLogger(TheatreDAO.class.getName());
+
+    private static final String INSERT_THEATRE =
+            "INSERT INTO theatres (name, city, address, total_seats) " +
+                    "VALUES (?, ?, ?, ?)";
+
+    private static final String GET_ALL_THEATRES =
+            "SELECT * FROM theatres";
+
+    private static final String UPDATE_THEATRE =
+            "UPDATE theatres SET " +
+                    "name = ?, " +
+                    "city = ?, " +
+                    "address = ?, " +
+                    "total_seats = ? " +
+                    "WHERE theatre_id = ?";
+
+    private static final String DELETE_THEATRE =
+            "DELETE FROM theatres WHERE theatre_id = ?";
+
+
     public boolean addTheatre(Theatre theatre) {
 
-        String sql = "INSERT INTO theatres " +
-                "(name, city, address, total_seats) " +
-                "VALUES (?, ?, ?, ?)";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(INSERT_THEATRE)) {
 
             statement.setString(1, theatre.getName());
             statement.setString(2, theatre.getCity());
@@ -31,18 +51,21 @@ public class TheatreDAO {
             return rowsInserted > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            LOGGER.severe("Error adding theatre: " + e.getMessage());
+
             return false;
         }
     }
+
+
     public List<Theatre> getAllTheatres() {
 
         List<Theatre> theatres = new ArrayList<>();
 
-        String sql = "SELECT * FROM theatres";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
+             PreparedStatement statement =
+                     connection.prepareStatement(GET_ALL_THEATRES);
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -59,23 +82,19 @@ public class TheatreDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+
+            LOGGER.severe("Database error: " + e.getMessage());
         }
 
         return theatres;
     }
 
+
     public boolean updateTheatre(Theatre theatre) {
 
-        String sql = "UPDATE theatres SET " +
-                "name = ?, " +
-                "city = ?, " +
-                "address = ?, " +
-                "total_seats = ? " +
-                "WHERE theatre_id = ?";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(UPDATE_THEATRE)) {
 
             statement.setString(1, theatre.getName());
             statement.setString(2, theatre.getCity());
@@ -88,16 +107,19 @@ public class TheatreDAO {
             return rowsUpdated > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            LOGGER.severe("Error updating theatre: " + e.getMessage());
+
             return false;
         }
     }
+
+
     public boolean deleteTheatre(int theatreId) {
 
-        String sql = "DELETE FROM theatres WHERE theatre_id = ?";
-
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(DELETE_THEATRE)) {
 
             statement.setInt(1, theatreId);
 
@@ -106,7 +128,9 @@ public class TheatreDAO {
             return rowsDeleted > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            LOGGER.severe("Error deleting theatre: " + e.getMessage());
+
             return false;
         }
     }

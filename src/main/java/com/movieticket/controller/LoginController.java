@@ -4,8 +4,12 @@ import com.movieticket.model.User;
 import com.movieticket.service.UserService;
 
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class LoginController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(LoginController.class.getName());
 
     private final UserService userService;
 
@@ -17,23 +21,26 @@ public class LoginController {
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("===== Movie Ticket Login =====");
+        LOGGER.info("===== Movie Ticket Login =====");
 
-        System.out.print("Enter email: ");
+        LOGGER.info("Enter email: ");
         String email = scanner.nextLine();
 
-        System.out.print("Enter password: ");
+        LOGGER.info("Enter password: ");
         String password = scanner.nextLine();
 
         User user = userService.findUserByEmail(email);
 
         if (user != null && user.getPassword().equals(password)) {
-            System.out.println("Login successful!");
-            System.out.println("Welcome, " + user.getName());
+
+            LOGGER.info("Login successful!");
+            LOGGER.info("Welcome, " + user.getName());
+
             return user;
         }
 
-        System.out.println("Invalid email or password.");
+        LOGGER.warning("Invalid email or password.");
+
         return null;
     }
 }

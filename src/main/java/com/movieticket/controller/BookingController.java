@@ -5,8 +5,12 @@ import com.movieticket.service.BookingService;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class BookingController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(BookingController.class.getName());
 
     private final BookingService bookingService;
     private final Scanner scanner;
@@ -20,11 +24,11 @@ public class BookingController {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("===== BOOKING MANAGEMENT =====");
-            System.out.println("1. View Bookings");
-            System.out.println("2. Back");
-            System.out.print("Enter your choice: ");
+            LOGGER.info("");
+            LOGGER.info("===== BOOKING MANAGEMENT =====");
+            LOGGER.info("1. View Bookings");
+            LOGGER.info("2. Back");
+            LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -39,7 +43,7 @@ public class BookingController {
                     return;
 
                 default:
-                    System.out.println("Invalid choice.");
+                    LOGGER.warning("Invalid choice.");
             }
         }
     }
@@ -48,12 +52,12 @@ public class BookingController {
 
         List<Booking> bookings = bookingService.getAllBookings();
 
-        System.out.println();
-        System.out.println("===== BOOKINGS =====");
+        LOGGER.info("");
+        LOGGER.info("===== BOOKINGS =====");
 
         for (Booking booking : bookings) {
 
-            System.out.println(
+            LOGGER.info(
                     booking.getBookingId() + " | " +
                             booking.getShowId() + " | " +
                             booking.getUserId() + " | " +
