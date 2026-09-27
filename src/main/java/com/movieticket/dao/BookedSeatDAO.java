@@ -24,6 +24,14 @@ public class BookedSeatDAO {
     private static final String GET_BOOKED_SEATS_BY_BOOKING =
             "SELECT * FROM booked_seats WHERE booking_id = ?";
 
+    private static final String CHECK_SEAT_BOOKED_FOR_SHOW =
+            "SELECT COUNT(*) " +
+                    "FROM booked_seats bs " +
+                    "JOIN bookings b ON bs.booking_id = b.booking_id " +
+                    "WHERE bs.seat_id = ? " +
+                    "AND b.show_id = ? " +
+                    "AND b.booking_status = 'CONFIRMED'";
+
 
     public boolean addBookedSeat(BookedSeat bookedSeat) {
 
@@ -77,5 +85,33 @@ public class BookedSeatDAO {
         }
 
         return bookedSeats;
+    }
+
+
+    public boolean isSeatBookedForShow(int seatId, int showId) {
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(
+                             CHECK_SEAT_BOOKED_FOR_SHOW)) {
+
+            statement.setInt(1, seatId);
+            statement.setInt(2, showId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1) > 0;
+            }
+
+        } catch (SQLException e) {
+
+            LOGGER.severe(
+                    "Error checking seat availability: "
+                            + e.getMessage()
+            );
+        }
+
+        return false;
     }
 }

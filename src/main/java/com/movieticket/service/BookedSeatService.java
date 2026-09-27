@@ -38,4 +38,17 @@ public class BookedSeatService {
 
         return bookedSeatDAO.getBookedSeatsByBooking(bookingId);
     }
+
+    public boolean isSeatBookedForShow(int seatId, int showId) {
+
+        if (seatId <= 0) {
+            return false;
+        }
+
+        if (showId <= 0) {
+            return false;
+        }
+
+        return bookedSeatDAO.isSeatBookedForShow(seatId, showId);
+    }
 }

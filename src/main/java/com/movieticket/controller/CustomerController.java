@@ -102,6 +102,14 @@ public class CustomerController {
         int seatId = scanner.nextInt();
         scanner.nextLine();
 
+        boolean seatAlreadyBooked =
+                bookedSeatService.isSeatBookedForShow(seatId, showId);
+
+        if (seatAlreadyBooked) {
+            LOGGER.warning("Seat is already booked for this show.");
+            return;
+        }
+
         Booking booking = new Booking(
                 0,
                 showId,
