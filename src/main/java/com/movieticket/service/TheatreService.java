@@ -66,6 +66,14 @@ public class TheatreService {
 
         return theatreDAO.updateTheatre(theatre);
     }
+    public List<Theatre> getTheatresByMovie(int movieId) {
+
+        if (movieId <= 0) {
+            return List.of();
+        }
+
+        return theatreDAO.getTheatresByMovie(movieId);
+    }
 
     public boolean deleteTheatre(int theatreId) {
 

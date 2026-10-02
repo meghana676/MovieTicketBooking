@@ -23,6 +23,12 @@ public class TheatreDAO {
     private static final String GET_ALL_THEATRES =
             "SELECT * FROM theatres";
 
+    private static final String GET_THEATRES_BY_MOVIE =
+            "SELECT DISTINCT t.* " +
+                    "FROM theatres t " +
+                    "JOIN shows s ON t.theatre_id = s.theatre_id " +
+                    "WHERE s.movie_id = ?";
+
     private static final String UPDATE_THEATRE =
             "UPDATE theatres SET " +
                     "name = ?, " +
@@ -84,6 +90,43 @@ public class TheatreDAO {
         } catch (SQLException e) {
 
             LOGGER.severe("Database error: " + e.getMessage());
+        }
+
+        return theatres;
+    }
+
+
+    public List<Theatre> getTheatresByMovie(int movieId) {
+
+        List<Theatre> theatres = new ArrayList<>();
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(GET_THEATRES_BY_MOVIE)) {
+
+            statement.setInt(1, movieId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+
+                Theatre theatre = new Theatre(
+                        resultSet.getInt("theatre_id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("city"),
+                        resultSet.getString("address"),
+                        resultSet.getInt("total_seats")
+                );
+
+                theatres.add(theatre);
+            }
+
+        } catch (SQLException e) {
+
+            LOGGER.severe(
+                    "Error finding theatres for movie: "
+                            + e.getMessage()
+            );
         }
 
         return theatres;

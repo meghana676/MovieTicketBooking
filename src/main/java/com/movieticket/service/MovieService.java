@@ -25,6 +25,15 @@ public class MovieService {
         return movieDAO.getAllMovies();
     }
 
+    public List<Movie> searchMoviesByName(String movieName) {
+
+        if (movieName == null || movieName.trim().isEmpty()) {
+            return List.of();
+        }
+
+        return movieDAO.searchMoviesByName(movieName);
+    }
+
     public boolean updateMovie(Movie movie) {
         return movieDAO.updateMovie(movie);
     }

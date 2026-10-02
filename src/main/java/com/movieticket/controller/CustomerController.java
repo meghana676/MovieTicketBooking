@@ -3,15 +3,19 @@ package com.movieticket.controller;
 import com.movieticket.exception.MovieTicketException;
 import com.movieticket.model.BookedSeat;
 import com.movieticket.model.Booking;
+import com.movieticket.model.Movie;
 import com.movieticket.model.Payment;
 import com.movieticket.model.Seat;
 import com.movieticket.model.Show;
+import com.movieticket.model.Theatre;
 import com.movieticket.model.User;
 import com.movieticket.service.BookedSeatService;
 import com.movieticket.service.BookingService;
+import com.movieticket.service.MovieService;
 import com.movieticket.service.PaymentService;
 import com.movieticket.service.SeatService;
 import com.movieticket.service.ShowService;
+import com.movieticket.service.TheatreService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +27,8 @@ public class CustomerController {
     private static final Logger LOGGER =
             Logger.getLogger(CustomerController.class.getName());
 
+    private final MovieService movieService;
+    private final TheatreService theatreService;
     private final ShowService showService;
     private final SeatService seatService;
     private final BookingService bookingService;
@@ -32,12 +38,17 @@ public class CustomerController {
     private final User user;
 
     public CustomerController(User user) {
+
         this.user = user;
+
+        this.movieService = new MovieService();
+        this.theatreService = new TheatreService();
         this.showService = new ShowService();
         this.seatService = new SeatService();
         this.bookingService = new BookingService();
         this.paymentService = new PaymentService();
         this.bookedSeatService = new BookedSeatService();
+
         this.scanner = new Scanner(System.in);
     }
 
@@ -47,9 +58,10 @@ public class CustomerController {
 
             LOGGER.info("");
             LOGGER.info("===== CUSTOMER MENU =====");
-            LOGGER.info("1. View Shows");
-            LOGGER.info("2. Book Show");
-            LOGGER.info("3. Back");
+            LOGGER.info("1. View Movies");
+            LOGGER.info("2. View Shows");
+            LOGGER.info("3. Book Tickets");
+            LOGGER.info("4. Back");
             LOGGER.info("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -58,14 +70,18 @@ public class CustomerController {
             switch (choice) {
 
                 case 1:
-                    viewShows();
+                    viewMovies();
                     break;
 
                 case 2:
-                    bookShow();
+                    viewShows();
                     break;
 
                 case 3:
+                    bookTickets();
+                    break;
+
+                case 4:
                     return;
 
                 default:
@@ -74,85 +90,262 @@ public class CustomerController {
         }
     }
 
+    private void viewMovies() {
+
+        List<Movie> movies = movieService.getAllMovies();
+
+        LOGGER.info("");
+        LOGGER.info("===== AVAILABLE MOVIES =====");
+
+        if (movies.isEmpty()) {
+            LOGGER.info("No movies available.");
+            return;
+        }
+
+        for (Movie movie : movies) {
+
+            LOGGER.info(
+                    movie.getTitle() + " | " +
+                            movie.getLanguage() + " | " +
+                            movie.getGenre() + " | " +
+                            movie.getDuration() + " minutes"
+            );
+        }
+    }
+
     private void viewShows() {
 
         List<Show> shows = showService.getAllShows();
+        List<Movie> movies = movieService.getAllMovies();
+        List<Theatre> theatres = theatreService.getAllTheatres();
 
         LOGGER.info("");
         LOGGER.info("===== AVAILABLE SHOWS =====");
 
+        if (shows.isEmpty()) {
+            LOGGER.info("No shows available.");
+            return;
+        }
+
         for (Show show : shows) {
 
+            String movieName = "Unknown Movie";
+            String theatreName = "Unknown Theatre";
+
+            for (Movie movie : movies) {
+                if (movie.getMovieId() == show.getMovieId()) {
+                    movieName = movie.getTitle();
+                    break;
+                }
+            }
+
+            for (Theatre theatre : theatres) {
+                if (theatre.getTheatreId() == show.getTheatreId()) {
+                    theatreName = theatre.getName();
+                    break;
+                }
+            }
+
             LOGGER.info(
-                    show.getShowId() + " | " +
-                            show.getTheatreId() + " | " +
-                            show.getMovieId() + " | " +
+                    movieName + " | " +
+                            theatreName + " | " +
                             show.getShowDate() + " | " +
-                            show.getStartTime() + " | " +
+                            show.getStartTime() + " - " +
                             show.getEndTime()
             );
         }
     }
 
-    private void bookShow() {
+    private void bookTickets() {
 
-        LOGGER.info("Enter show ID: ");
-        int showId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("");
+        LOGGER.info("Enter movie name: ");
 
-        Show selectedShow = null;
+        String movieName = scanner.nextLine();
 
-        List<Show> shows = showService.getAllShows();
+        if (movieName == null || movieName.trim().isEmpty()) {
+            LOGGER.warning("Movie name cannot be empty.");
+            return;
+        }
 
-        for (Show show : shows) {
-            if (show.getShowId() == showId) {
-                selectedShow = show;
+        List<Movie> movies =
+                movieService.searchMoviesByName(movieName);
+
+        if (movies.isEmpty()) {
+            LOGGER.warning("No movie found.");
+            return;
+        }
+
+        LOGGER.info("");
+        LOGGER.info("===== MOVIES FOUND =====");
+
+        for (int i = 0; i < movies.size(); i++) {
+
+            Movie movie = movies.get(i);
+
+            LOGGER.info(
+                    (i + 1) + ". " +
+                            movie.getTitle() + " | " +
+                            movie.getLanguage() + " | " +
+                            movie.getGenre()
+            );
+        }
+
+        Movie selectedMovie;
+
+        if (movies.size() == 1) {
+
+            selectedMovie = movies.get(0);
+
+        } else {
+
+            LOGGER.info("Select movie number: ");
+
+            int movieChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (movieChoice <= 0 || movieChoice > movies.size()) {
+                LOGGER.warning("Invalid movie selection.");
+                return;
+            }
+
+            selectedMovie = movies.get(movieChoice - 1);
+        }
+
+        LOGGER.info(
+                "Selected movie: " + selectedMovie.getTitle()
+        );
+
+        List<Theatre> theatres =
+                theatreService.getTheatresByMovie(
+                        selectedMovie.getMovieId()
+                );
+
+        if (theatres.isEmpty()) {
+            LOGGER.warning(
+                    "No theatres are showing this movie."
+            );
+            return;
+        }
+
+        LOGGER.info("");
+        LOGGER.info("===== THEATRES =====");
+
+        for (int i = 0; i < theatres.size(); i++) {
+
+            Theatre theatre = theatres.get(i);
+
+            LOGGER.info(
+                    (i + 1) + ". " +
+                            theatre.getName() + " | " +
+                            theatre.getCity() + " | " +
+                            theatre.getAddress()
+            );
+        }
+
+        LOGGER.info("Enter theatre name: ");
+
+        String theatreName = scanner.nextLine();
+
+        Theatre selectedTheatre = null;
+
+        for (Theatre theatre : theatres) {
+
+            if (theatre.getName()
+                    .equalsIgnoreCase(theatreName.trim())) {
+
+                selectedTheatre = theatre;
                 break;
             }
         }
 
-        if (selectedShow == null) {
-            LOGGER.warning("Show not found.");
+        if (selectedTheatre == null) {
+            LOGGER.warning("Theatre not found.");
             return;
         }
 
+        List<Show> shows =
+                showService.getShowsByMovieAndTheatre(
+                        selectedMovie.getMovieId(),
+                        selectedTheatre.getTheatreId()
+                );
+
+        if (shows.isEmpty()) {
+            LOGGER.warning(
+                    "No shows available at this theatre."
+            );
+            return;
+        }
+
+        LOGGER.info("");
+        LOGGER.info("===== AVAILABLE SHOWS =====");
+
+        for (int i = 0; i < shows.size(); i++) {
+
+            Show show = shows.get(i);
+
+            LOGGER.info(
+                    (i + 1) + ". " +
+                            show.getShowDate() + " | " +
+                            show.getStartTime() + " - " +
+                            show.getEndTime()
+            );
+        }
+
+        LOGGER.info("Select show number: ");
+
+        int showChoice = scanner.nextInt();
+        scanner.nextLine();
+
+        if (showChoice <= 0 || showChoice > shows.size()) {
+            LOGGER.warning("Invalid show selection.");
+            return;
+        }
+
+        Show selectedShow = shows.get(showChoice - 1);
+
         List<Seat> seats =
-                seatService.getSeatsByTheatre(selectedShow.getTheatreId());
+                seatService.getSeatsByTheatre(
+                        selectedTheatre.getTheatreId()
+                );
 
         if (seats.isEmpty()) {
-            LOGGER.warning("No seats found for this theatre.");
+            LOGGER.warning("No seats found.");
             return;
         }
 
         LOGGER.info("");
         LOGGER.info("===== AVAILABLE SEATS =====");
 
+        List<Seat> availableSeats = new ArrayList<>();
+
         for (Seat seat : seats) {
 
             boolean booked =
                     bookedSeatService.isSeatBookedForShow(
                             seat.getSeatId(),
-                            showId
+                            selectedShow.getShowId()
                     );
 
-            if (booked) {
+            if (!booked) {
+
+                availableSeats.add(seat);
+
                 LOGGER.info(
-                        seat.getSeatId() + " | " +
-                                seat.getSeatNumber() + " | " +
+                        seat.getSeatNumber() + " | " +
                                 seat.getSeatType() + " | " +
-                                seat.getPrice() + " | BOOKED"
-                );
-            } else {
-                LOGGER.info(
-                        seat.getSeatId() + " | " +
-                                seat.getSeatNumber() + " | " +
-                                seat.getSeatType() + " | " +
-                                seat.getPrice() + " | AVAILABLE"
+                                seat.getPrice()
                 );
             }
         }
 
+        if (availableSeats.isEmpty()) {
+            LOGGER.info("No seats are available for this show.");
+            return;
+        }
+
         LOGGER.info("Enter number of seats: ");
+
         int numberOfSeats = scanner.nextInt();
         scanner.nextLine();
 
@@ -161,26 +354,36 @@ public class CustomerController {
             return;
         }
 
+        if (numberOfSeats > availableSeats.size()) {
+            LOGGER.warning(
+                    "Requested seats are more than available seats."
+            );
+            return;
+        }
+
         List<Integer> selectedSeatIds = new ArrayList<>();
         double totalAmount = 0;
 
         for (int i = 1; i <= numberOfSeats; i++) {
 
-            LOGGER.info("Enter seat ID " + i + ": ");
-            int seatId = scanner.nextInt();
-            scanner.nextLine();
+            LOGGER.info("Enter seat number " + i + ": ");
+
+            String seatNumber = scanner.nextLine();
 
             Seat selectedSeat = null;
 
-            for (Seat seat : seats) {
-                if (seat.getSeatId() == seatId) {
+            for (Seat seat : availableSeats) {
+
+                if (seat.getSeatNumber()
+                        .equalsIgnoreCase(seatNumber.trim())) {
+
                     selectedSeat = seat;
                     break;
                 }
             }
 
             if (selectedSeat == null) {
-                LOGGER.warning("Seat not found.");
+                LOGGER.warning("Seat is not available.");
                 return;
             }
 
@@ -188,13 +391,15 @@ public class CustomerController {
 
                 boolean seatAlreadyBooked =
                         bookedSeatService.isSeatBookedForShow(
-                                seatId,
-                                showId
+                                selectedSeat.getSeatId(),
+                                selectedShow.getShowId()
                         );
 
                 if (seatAlreadyBooked) {
+
                     throw new MovieTicketException(
-                            "Seat " + seatId +
+                            "Seat " +
+                                    selectedSeat.getSeatNumber() +
                                     " is already booked for this show."
                     );
                 }
@@ -205,12 +410,20 @@ public class CustomerController {
                 return;
             }
 
-            if (selectedSeatIds.contains(seatId)) {
-                LOGGER.warning("Seat selected more than once.");
+            if (selectedSeatIds.contains(
+                    selectedSeat.getSeatId())) {
+
+                LOGGER.warning(
+                        "Seat selected more than once."
+                );
+
                 return;
             }
 
-            selectedSeatIds.add(seatId);
+            selectedSeatIds.add(
+                    selectedSeat.getSeatId()
+            );
+
             totalAmount += selectedSeat.getPrice();
         }
 
@@ -218,28 +431,42 @@ public class CustomerController {
 
         Booking booking = new Booking(
                 0,
-                showId,
+                selectedShow.getShowId(),
                 user.getUserId(),
                 null,
                 totalAmount,
                 "PENDING"
         );
 
-        int bookingId = bookingService.addBooking(booking);
+        int bookingId =
+                bookingService.addBooking(booking);
 
         if (bookingId <= 0) {
-            LOGGER.warning("Booking could not be created.");
+
+            LOGGER.warning(
+                    "Booking could not be created."
+            );
+
             return;
         }
 
-        LOGGER.info("Booking created successfully!");
-        LOGGER.info("Booking ID: " + bookingId);
+        LOGGER.info(
+                "Booking created successfully."
+        );
 
-        LOGGER.info("Enter payment method: ");
-        String paymentMethod = scanner.nextLine();
+        LOGGER.info(
+                "Enter payment method: "
+        );
 
-        LOGGER.info("Enter payment status (SUCCESS/FAILED): ");
-        String paymentStatus = scanner.nextLine();
+        String paymentMethod =
+                scanner.nextLine();
+
+        LOGGER.info(
+                "Enter payment status (SUCCESS/FAILED): "
+        );
+
+        String paymentStatus =
+                scanner.nextLine();
 
         Payment payment = new Payment(
                 0,
@@ -250,32 +477,44 @@ public class CustomerController {
                 null
         );
 
-        boolean paymentAdded = paymentService.addPayment(payment);
+        boolean paymentAdded =
+                paymentService.addPayment(payment);
 
         if (!paymentAdded) {
-            LOGGER.warning("Payment could not be added.");
+
+            LOGGER.warning(
+                    "Payment could not be added."
+            );
+
             return;
         }
 
-        LOGGER.info("Payment added successfully!");
+        LOGGER.info(
+                "Payment added successfully."
+        );
 
         if ("SUCCESS".equalsIgnoreCase(paymentStatus)) {
 
             for (int seatId : selectedSeatIds) {
 
-                BookedSeat bookedSeat = new BookedSeat(
-                        0,
-                        seatId,
-                        bookingId
-                );
+                BookedSeat bookedSeat =
+                        new BookedSeat(
+                                0,
+                                seatId,
+                                bookingId
+                        );
 
                 boolean seatBooked =
-                        bookedSeatService.addBookedSeat(bookedSeat);
+                        bookedSeatService.addBookedSeat(
+                                bookedSeat
+                        );
 
                 if (!seatBooked) {
+
                     LOGGER.warning(
-                            "Could not book seat: " + seatId
+                            "Could not book selected seat."
                     );
+
                     return;
                 }
             }
@@ -289,7 +528,9 @@ public class CustomerController {
             if (bookingConfirmed) {
 
                 LOGGER.info("Payment successful!");
-                LOGGER.info("All selected seats booked successfully!");
+                LOGGER.info(
+                        "All selected seats booked successfully!"
+                );
                 LOGGER.info("Booking confirmed!");
 
             } else {
@@ -302,8 +543,12 @@ public class CustomerController {
         } else {
 
             LOGGER.warning("Payment failed.");
-            LOGGER.info("Booking remains PENDING.");
-            LOGGER.info("Seats were not booked.");
+            LOGGER.info(
+                    "Booking remains PENDING."
+            );
+            LOGGER.info(
+                    "Seats were not booked."
+            );
         }
     }
 }

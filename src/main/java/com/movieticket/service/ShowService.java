@@ -74,6 +74,14 @@ public class ShowService {
 
         return showDAO.updateShow(show);
     }
+    public List<Show> getShowsByMovieAndTheatre(int movieId, int theatreId) {
+
+        if (movieId <= 0 || theatreId <= 0) {
+            return List.of();
+        }
+
+        return showDAO.getShowsByMovieAndTheatre(movieId, theatreId);
+    }
 
     public boolean deleteShow(int showId) {
 

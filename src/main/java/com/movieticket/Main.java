@@ -5,6 +5,9 @@ import com.movieticket.controller.CustomerController;
 import com.movieticket.controller.LoginController;
 import com.movieticket.model.User;
 
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class Main {
@@ -14,6 +17,7 @@ public class Main {
 
     public static void main(String[] args) {
 
+        configureLogging();
 
         LoginController loginController = new LoginController();
 
@@ -31,7 +35,9 @@ public class Main {
 
         if (user.getRole().equals("ADMIN")) {
 
-            AdminController adminController = new AdminController();
+            AdminController adminController =
+                    new AdminController();
+
             adminController.showMenu();
 
         } else if (user.getRole().equals("CUSTOMER")) {
@@ -40,6 +46,24 @@ public class Main {
                     new CustomerController(user);
 
             customerController.showMenu();
+        }
+    }
+
+    private static void configureLogging() {
+
+        Logger rootLogger = Logger.getLogger("");
+
+        for (Handler handler : rootLogger.getHandlers()) {
+
+            handler.setFormatter(new Formatter() {
+
+                @Override
+                public String format(LogRecord record) {
+
+                    return record.getMessage()
+                            + System.lineSeparator();
+                }
+            });
         }
     }
 }

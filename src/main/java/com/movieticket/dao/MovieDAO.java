@@ -24,6 +24,9 @@ public class MovieDAO {
     private static final String GET_ALL_MOVIES =
             "SELECT * FROM movies";
 
+    private static final String SEARCH_MOVIES_BY_NAME =
+            "SELECT * FROM movies WHERE title LIKE ?";
+
     private static final String UPDATE_MOVIE =
             "UPDATE movies SET " +
                     "title = ?, " +
@@ -91,6 +94,43 @@ public class MovieDAO {
         } catch (SQLException e) {
 
             LOGGER.severe("Database error: " + e.getMessage());
+        }
+
+        return movies;
+    }
+
+
+    public List<Movie> searchMoviesByName(String movieName) {
+
+        List<Movie> movies = new ArrayList<>();
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(SEARCH_MOVIES_BY_NAME)) {
+
+            statement.setString(1, "%" + movieName + "%");
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+
+                Movie movie = new Movie(
+                        resultSet.getInt("movie_id"),
+                        resultSet.getString("title"),
+                        resultSet.getString("language"),
+                        resultSet.getString("genre"),
+                        resultSet.getInt("duration"),
+                        resultSet.getDate("release_date").toLocalDate()
+                );
+
+                movies.add(movie);
+            }
+
+        } catch (SQLException e) {
+
+            LOGGER.severe(
+                    "Error searching movies: " + e.getMessage()
+            );
         }
 
         return movies;

@@ -24,6 +24,11 @@ public class ShowDAO {
     private static final String GET_ALL_SHOWS =
             "SELECT * FROM shows";
 
+    private static final String GET_SHOWS_BY_MOVIE_AND_THEATRE =
+            "SELECT * FROM shows " +
+                    "WHERE movie_id = ? " +
+                    "AND theatre_id = ?";
+
     private static final String UPDATE_SHOW =
             "UPDATE shows SET " +
                     "theatre_id = ?, " +
@@ -97,6 +102,47 @@ public class ShowDAO {
         } catch (SQLException e) {
 
             LOGGER.severe("Database error: " + e.getMessage());
+        }
+
+        return shows;
+    }
+
+
+    public List<Show> getShowsByMovieAndTheatre(
+            int movieId,
+            int theatreId) {
+
+        List<Show> shows = new ArrayList<>();
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(
+                             GET_SHOWS_BY_MOVIE_AND_THEATRE)) {
+
+            statement.setInt(1, movieId);
+            statement.setInt(2, theatreId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+
+                Show show = new Show(
+                        resultSet.getInt("show_id"),
+                        resultSet.getInt("theatre_id"),
+                        resultSet.getInt("movie_id"),
+                        resultSet.getDate("show_date").toLocalDate(),
+                        resultSet.getTime("start_time").toLocalTime(),
+                        resultSet.getTime("end_time").toLocalTime()
+                );
+
+                shows.add(show);
+            }
+
+        } catch (SQLException e) {
+
+            LOGGER.severe(
+                    "Error finding shows: " + e.getMessage()
+            );
         }
 
         return shows;
