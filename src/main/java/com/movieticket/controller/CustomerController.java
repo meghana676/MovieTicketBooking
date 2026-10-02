@@ -133,6 +133,7 @@ public class CustomerController {
             String theatreName = "Unknown Theatre";
 
             for (Movie movie : movies) {
+
                 if (movie.getMovieId() == show.getMovieId()) {
                     movieName = movie.getTitle();
                     break;
@@ -140,6 +141,7 @@ public class CustomerController {
             }
 
             for (Theatre theatre : theatres) {
+
                 if (theatre.getTheatreId() == show.getTheatreId()) {
                     theatreName = theatre.getName();
                     break;
@@ -159,7 +161,7 @@ public class CustomerController {
     private void bookTickets() {
 
         LOGGER.info("");
-        LOGGER.info("Enter movie name: ");
+        LOGGER.info("Enter movie name:");
 
         String movieName = scanner.nextLine();
 
@@ -199,7 +201,7 @@ public class CustomerController {
 
         } else {
 
-            LOGGER.info("Select movie number: ");
+            LOGGER.info("Select movie number:");
 
             int movieChoice = scanner.nextInt();
             scanner.nextLine();
@@ -243,7 +245,7 @@ public class CustomerController {
             );
         }
 
-        LOGGER.info("Enter theatre name: ");
+        LOGGER.info("Enter theatre name:");
 
         String theatreName = scanner.nextLine();
 
@@ -292,7 +294,7 @@ public class CustomerController {
             );
         }
 
-        LOGGER.info("Select show number: ");
+        LOGGER.info("Select show number:");
 
         int showChoice = scanner.nextInt();
         scanner.nextLine();
@@ -344,7 +346,7 @@ public class CustomerController {
             return;
         }
 
-        LOGGER.info("Enter number of seats: ");
+        LOGGER.info("Enter number of seats:");
 
         int numberOfSeats = scanner.nextInt();
         scanner.nextLine();
@@ -366,7 +368,7 @@ public class CustomerController {
 
         for (int i = 1; i <= numberOfSeats; i++) {
 
-            LOGGER.info("Enter seat number " + i + ": ");
+            LOGGER.info("Enter seat number " + i + ":");
 
             String seatNumber = scanner.nextLine();
 
@@ -454,19 +456,12 @@ public class CustomerController {
                 "Booking created successfully."
         );
 
-        LOGGER.info(
-                "Enter payment method: "
-        );
+        LOGGER.info("Enter payment method:");
 
-        String paymentMethod =
-                scanner.nextLine();
+        String paymentMethod = scanner.nextLine();
 
-        LOGGER.info(
-                "Enter payment status (SUCCESS/FAILED): "
-        );
-
-        String paymentStatus =
-                scanner.nextLine();
+        // Payment is automatically successful
+        String paymentStatus = "SUCCESS";
 
         Payment payment = new Payment(
                 0,
@@ -490,64 +485,51 @@ public class CustomerController {
         }
 
         LOGGER.info(
-                "Payment added successfully."
+                "Payment completed successfully."
         );
 
-        if ("SUCCESS".equalsIgnoreCase(paymentStatus)) {
+        for (int seatId : selectedSeatIds) {
 
-            for (int seatId : selectedSeatIds) {
-
-                BookedSeat bookedSeat =
-                        new BookedSeat(
-                                0,
-                                seatId,
-                                bookingId
-                        );
-
-                boolean seatBooked =
-                        bookedSeatService.addBookedSeat(
-                                bookedSeat
-                        );
-
-                if (!seatBooked) {
-
-                    LOGGER.warning(
-                            "Could not book selected seat."
+            BookedSeat bookedSeat =
+                    new BookedSeat(
+                            0,
+                            seatId,
+                            bookingId
                     );
 
-                    return;
-                }
-            }
-
-            boolean bookingConfirmed =
-                    bookingService.updateBookingStatus(
-                            bookingId,
-                            "CONFIRMED"
+            boolean seatBooked =
+                    bookedSeatService.addBookedSeat(
+                            bookedSeat
                     );
 
-            if (bookingConfirmed) {
-
-                LOGGER.info("Payment successful!");
-                LOGGER.info(
-                        "All selected seats booked successfully!"
-                );
-                LOGGER.info("Booking confirmed!");
-
-            } else {
+            if (!seatBooked) {
 
                 LOGGER.warning(
-                        "Booking could not be confirmed."
+                        "Could not book selected seat."
                 );
+
+                return;
             }
+        }
+
+        boolean bookingConfirmed =
+                bookingService.updateBookingStatus(
+                        bookingId,
+                        "CONFIRMED"
+                );
+
+        if (bookingConfirmed) {
+
+            LOGGER.info(
+                    "All selected seats booked successfully!"
+            );
+
+            LOGGER.info("Booking confirmed!");
 
         } else {
 
-            LOGGER.warning("Payment failed.");
-            LOGGER.info(
-                    "Booking remains PENDING."
-            );
-            LOGGER.info(
-                    "Seats were not booked."
+            LOGGER.warning(
+                    "Booking could not be confirmed."
             );
         }
     }
