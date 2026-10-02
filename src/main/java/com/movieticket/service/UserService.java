@@ -14,4 +14,13 @@ public class UserService {
     public User findUserByEmail(String email) {
         return userDAO.findUserByEmail(email);
     }
+
+    public User findUserById(int userId) {
+
+        if (userId <= 0) {
+            return null;
+        }
+
+        return userDAO.findUserById(userId);
+    }
 }

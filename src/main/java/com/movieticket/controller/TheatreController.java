@@ -65,16 +65,16 @@ public class TheatreController {
 
     private void addTheatre() {
 
-        LOGGER.info("Enter theatre name: ");
+        LOGGER.info("Enter theatre name:");
         String name = scanner.nextLine();
 
-        LOGGER.info("Enter city: ");
+        LOGGER.info("Enter city:");
         String city = scanner.nextLine();
 
-        LOGGER.info("Enter address: ");
+        LOGGER.info("Enter address:");
         String address = scanner.nextLine();
 
-        LOGGER.info("Enter total seats: ");
+        LOGGER.info("Enter total seats:");
         int totalSeats = scanner.nextInt();
         scanner.nextLine();
 
@@ -98,16 +98,21 @@ public class TheatreController {
 
     private void viewTheatres() {
 
-        List<Theatre> theatres = theatreService.getAllTheatres();
+        List<Theatre> theatres =
+                theatreService.getAllTheatres();
 
         LOGGER.info("");
         LOGGER.info("===== THEATRES =====");
 
+        if (theatres.isEmpty()) {
+            LOGGER.info("No theatres available.");
+            return;
+        }
+
         for (Theatre theatre : theatres) {
 
             LOGGER.info(
-                    theatre.getTheatreId() + " | " +
-                            theatre.getName() + " | " +
+                    theatre.getName() + " | " +
                             theatre.getCity() + " | " +
                             theatre.getAddress() + " | " +
                             theatre.getTotalSeats() + " seats"
@@ -117,25 +122,55 @@ public class TheatreController {
 
     private void updateTheatre() {
 
-        LOGGER.info("Enter theatre ID: ");
-        int theatreId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Enter theatre name:");
 
-        LOGGER.info("Enter new theatre name: ");
+        String theatreName = scanner.nextLine();
+
+        if (theatreName.trim().isEmpty()) {
+            LOGGER.warning("Theatre name cannot be empty.");
+            return;
+        }
+
+        List<Theatre> theatres =
+                theatreService.getAllTheatres();
+
+        Theatre selectedTheatre = null;
+
+        for (Theatre theatre : theatres) {
+
+            if (theatre.getName()
+                    .equalsIgnoreCase(theatreName.trim())) {
+
+                selectedTheatre = theatre;
+                break;
+            }
+        }
+
+        if (selectedTheatre == null) {
+            LOGGER.warning("Theatre not found.");
+            return;
+        }
+
+        LOGGER.info(
+                "Selected theatre: " +
+                        selectedTheatre.getName()
+        );
+
+        LOGGER.info("Enter new theatre name:");
         String name = scanner.nextLine();
 
-        LOGGER.info("Enter new city: ");
+        LOGGER.info("Enter new city:");
         String city = scanner.nextLine();
 
-        LOGGER.info("Enter new address: ");
+        LOGGER.info("Enter new address:");
         String address = scanner.nextLine();
 
-        LOGGER.info("Enter new total seats: ");
+        LOGGER.info("Enter new total seats:");
         int totalSeats = scanner.nextInt();
         scanner.nextLine();
 
         Theatre theatre = new Theatre(
-                theatreId,
+                selectedTheatre.getTheatreId(),
                 name,
                 city,
                 address,
@@ -154,11 +189,37 @@ public class TheatreController {
 
     private void deleteTheatre() {
 
-        LOGGER.info("Enter theatre ID: ");
-        int theatreId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Enter theatre name:");
 
-        if (theatreService.deleteTheatre(theatreId)) {
+        String theatreName = scanner.nextLine();
+
+        if (theatreName.trim().isEmpty()) {
+            LOGGER.warning("Theatre name cannot be empty.");
+            return;
+        }
+
+        List<Theatre> theatres =
+                theatreService.getAllTheatres();
+
+        Theatre selectedTheatre = null;
+
+        for (Theatre theatre : theatres) {
+
+            if (theatre.getName()
+                    .equalsIgnoreCase(theatreName.trim())) {
+
+                selectedTheatre = theatre;
+                break;
+            }
+        }
+
+        if (selectedTheatre == null) {
+            LOGGER.warning("Theatre not found.");
+            return;
+        }
+
+        if (theatreService.deleteTheatre(
+                selectedTheatre.getTheatreId())) {
 
             LOGGER.info("Theatre deleted successfully!");
 

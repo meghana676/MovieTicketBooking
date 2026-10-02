@@ -3,6 +3,8 @@ package com.movieticket.service;
 import com.movieticket.dao.PaymentDAO;
 import com.movieticket.model.Payment;
 
+import java.util.List;
+
 public class PaymentService {
 
     private final PaymentDAO paymentDAO;
@@ -36,5 +38,9 @@ public class PaymentService {
         }
 
         return paymentDAO.addPayment(payment);
+    }
+
+    public List<Payment> getAllPayments() {
+        return paymentDAO.getAllPayments();
     }
 }

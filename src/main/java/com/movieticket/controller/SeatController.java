@@ -1,7 +1,9 @@
 package com.movieticket.controller;
 
 import com.movieticket.model.Seat;
+import com.movieticket.model.Theatre;
 import com.movieticket.service.SeatService;
+import com.movieticket.service.TheatreService;
 
 import java.util.List;
 import java.util.Scanner;
@@ -13,10 +15,12 @@ public class SeatController {
             Logger.getLogger(SeatController.class.getName());
 
     private final SeatService seatService;
+    private final TheatreService theatreService;
     private final Scanner scanner;
 
     public SeatController() {
         seatService = new SeatService();
+        theatreService = new TheatreService();
         scanner = new Scanner(System.in);
     }
 
@@ -65,23 +69,30 @@ public class SeatController {
 
     private void addSeat() {
 
-        LOGGER.info("Enter theatre ID: ");
-        int theatreId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Enter theatre name:");
+        String theatreName = scanner.nextLine();
 
-        LOGGER.info("Enter seat number: ");
+        Theatre selectedTheatre =
+                findTheatreByName(theatreName);
+
+        if (selectedTheatre == null) {
+            LOGGER.warning("Theatre not found.");
+            return;
+        }
+
+        LOGGER.info("Enter seat number:");
         String seatNumber = scanner.nextLine();
 
-        LOGGER.info("Enter seat type: ");
+        LOGGER.info("Enter seat type:");
         String seatType = scanner.nextLine();
 
-        LOGGER.info("Enter price: ");
+        LOGGER.info("Enter price:");
         double price = scanner.nextDouble();
         scanner.nextLine();
 
         Seat seat = new Seat(
                 0,
-                theatreId,
+                selectedTheatre.getTheatreId(),
                 seatNumber,
                 seatType,
                 price
@@ -99,21 +110,38 @@ public class SeatController {
 
     private void viewSeats() {
 
-        LOGGER.info("Enter theatre ID: ");
-        int theatreId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Enter theatre name:");
+        String theatreName = scanner.nextLine();
 
-        List<Seat> seats = seatService.getSeatsByTheatre(theatreId);
+        Theatre selectedTheatre =
+                findTheatreByName(theatreName);
+
+        if (selectedTheatre == null) {
+            LOGGER.warning("Theatre not found.");
+            return;
+        }
+
+        List<Seat> seats =
+                seatService.getSeatsByTheatre(
+                        selectedTheatre.getTheatreId()
+                );
 
         LOGGER.info("");
-        LOGGER.info("===== SEATS =====");
+        LOGGER.info(
+                "===== SEATS - " +
+                        selectedTheatre.getName() +
+                        " ====="
+        );
+
+        if (seats.isEmpty()) {
+            LOGGER.info("No seats available.");
+            return;
+        }
 
         for (Seat seat : seats) {
 
             LOGGER.info(
-                    seat.getSeatId() + " | " +
-                            seat.getTheatreId() + " | " +
-                            seat.getSeatNumber() + " | " +
+                    seat.getSeatNumber() + " | " +
                             seat.getSeatType() + " | " +
                             seat.getPrice()
             );
@@ -122,28 +150,61 @@ public class SeatController {
 
     private void updateSeat() {
 
-        LOGGER.info("Enter seat ID: ");
-        int seatId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Enter theatre name:");
+        String theatreName = scanner.nextLine();
 
-        LOGGER.info("Enter theatre ID: ");
-        int theatreId = scanner.nextInt();
-        scanner.nextLine();
+        Theatre selectedTheatre =
+                findTheatreByName(theatreName);
 
-        LOGGER.info("Enter new seat number: ");
+        if (selectedTheatre == null) {
+            LOGGER.warning("Theatre not found.");
+            return;
+        }
+
+        LOGGER.info("Enter seat number:");
         String seatNumber = scanner.nextLine();
 
-        LOGGER.info("Enter new seat type: ");
+        List<Seat> seats =
+                seatService.getSeatsByTheatre(
+                        selectedTheatre.getTheatreId()
+                );
+
+        Seat selectedSeat = null;
+
+        for (Seat seat : seats) {
+
+            if (seat.getSeatNumber()
+                    .equalsIgnoreCase(seatNumber.trim())) {
+
+                selectedSeat = seat;
+                break;
+            }
+        }
+
+        if (selectedSeat == null) {
+            LOGGER.warning("Seat not found.");
+            return;
+        }
+
+        LOGGER.info(
+                "Selected seat: " +
+                        selectedSeat.getSeatNumber()
+        );
+
+        LOGGER.info("Enter new seat number:");
+        String newSeatNumber = scanner.nextLine();
+
+        LOGGER.info("Enter new seat type:");
         String seatType = scanner.nextLine();
 
-        LOGGER.info("Enter new price: ");
+        LOGGER.info("Enter new price:");
         double price = scanner.nextDouble();
         scanner.nextLine();
 
         Seat seat = new Seat(
-                seatId,
-                theatreId,
-                seatNumber,
+                selectedSeat.getSeatId(),
+                selectedTheatre.getTheatreId(),
+                newSeatNumber,
                 seatType,
                 price
         );
@@ -160,11 +221,44 @@ public class SeatController {
 
     private void deleteSeat() {
 
-        LOGGER.info("Enter seat ID: ");
-        int seatId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Enter theatre name:");
+        String theatreName = scanner.nextLine();
 
-        if (seatService.deleteSeat(seatId)) {
+        Theatre selectedTheatre =
+                findTheatreByName(theatreName);
+
+        if (selectedTheatre == null) {
+            LOGGER.warning("Theatre not found.");
+            return;
+        }
+
+        LOGGER.info("Enter seat number:");
+        String seatNumber = scanner.nextLine();
+
+        List<Seat> seats =
+                seatService.getSeatsByTheatre(
+                        selectedTheatre.getTheatreId()
+                );
+
+        Seat selectedSeat = null;
+
+        for (Seat seat : seats) {
+
+            if (seat.getSeatNumber()
+                    .equalsIgnoreCase(seatNumber.trim())) {
+
+                selectedSeat = seat;
+                break;
+            }
+        }
+
+        if (selectedSeat == null) {
+            LOGGER.warning("Seat not found.");
+            return;
+        }
+
+        if (seatService.deleteSeat(
+                selectedSeat.getSeatId())) {
 
             LOGGER.info("Seat deleted successfully!");
 
@@ -172,5 +266,27 @@ public class SeatController {
 
             LOGGER.warning("Seat could not be deleted.");
         }
+    }
+
+    private Theatre findTheatreByName(String theatreName) {
+
+        if (theatreName == null ||
+                theatreName.trim().isEmpty()) {
+            return null;
+        }
+
+        List<Theatre> theatres =
+                theatreService.getAllTheatres();
+
+        for (Theatre theatre : theatres) {
+
+            if (theatre.getName()
+                    .equalsIgnoreCase(theatreName.trim())) {
+
+                return theatre;
+            }
+        }
+
+        return null;
     }
 }

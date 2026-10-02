@@ -67,20 +67,25 @@ public class MovieController {
 
     private void addMovie() {
 
-        LOGGER.info("Enter title: ");
+        LOGGER.info("Enter title:");
         String title = scanner.nextLine();
 
-        LOGGER.info("Enter language: ");
+        if (title.trim().isEmpty()) {
+            LOGGER.warning("Movie title cannot be empty.");
+            return;
+        }
+
+        LOGGER.info("Enter language:");
         String language = scanner.nextLine();
 
-        LOGGER.info("Enter genre: ");
+        LOGGER.info("Enter genre:");
         String genre = scanner.nextLine();
 
-        LOGGER.info("Enter duration in minutes: ");
+        LOGGER.info("Enter duration in minutes:");
         int duration = scanner.nextInt();
         scanner.nextLine();
 
-        LOGGER.info("Enter release date (YYYY-MM-DD): ");
+        LOGGER.info("Enter release date (YYYY-MM-DD):");
         LocalDate releaseDate = LocalDate.parse(scanner.nextLine());
 
         Movie movie = new Movie(
@@ -109,11 +114,15 @@ public class MovieController {
         LOGGER.info("");
         LOGGER.info("===== MOVIES =====");
 
+        if (movies.isEmpty()) {
+            LOGGER.info("No movies available.");
+            return;
+        }
+
         for (Movie movie : movies) {
 
             LOGGER.info(
-                    movie.getMovieId() + " | " +
-                            movie.getTitle() + " | " +
+                    movie.getTitle() + " | " +
                             movie.getLanguage() + " | " +
                             movie.getGenre() + " | " +
                             movie.getDuration() + " minutes | " +
@@ -124,28 +133,85 @@ public class MovieController {
 
     private void updateMovie() {
 
-        LOGGER.info("Enter movie ID: ");
-        int movieId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Enter movie name:");
 
-        LOGGER.info("Enter new title: ");
+        String movieName = scanner.nextLine();
+
+        if (movieName.trim().isEmpty()) {
+            LOGGER.warning("Movie name cannot be empty.");
+            return;
+        }
+
+        List<Movie> movies =
+                movieService.searchMoviesByName(movieName);
+
+        if (movies.isEmpty()) {
+            LOGGER.warning("Movie not found.");
+            return;
+        }
+
+        Movie selectedMovie;
+
+        if (movies.size() == 1) {
+
+            selectedMovie = movies.get(0);
+
+        } else {
+
+            LOGGER.info("");
+            LOGGER.info("===== MOVIES FOUND =====");
+
+            for (int i = 0; i < movies.size(); i++) {
+
+                Movie movie = movies.get(i);
+
+                LOGGER.info(
+                        (i + 1) + ". " +
+                                movie.getTitle() + " | " +
+                                movie.getLanguage() + " | " +
+                                movie.getGenre()
+                );
+            }
+
+            LOGGER.info("Select movie number:");
+
+            int movieChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (movieChoice <= 0 ||
+                    movieChoice > movies.size()) {
+
+                LOGGER.warning("Invalid movie selection.");
+                return;
+            }
+
+            selectedMovie = movies.get(movieChoice - 1);
+        }
+
+        LOGGER.info(
+                "Selected movie: " +
+                        selectedMovie.getTitle()
+        );
+
+        LOGGER.info("Enter new title:");
         String title = scanner.nextLine();
 
-        LOGGER.info("Enter new language: ");
+        LOGGER.info("Enter new language:");
         String language = scanner.nextLine();
 
-        LOGGER.info("Enter new genre: ");
+        LOGGER.info("Enter new genre:");
         String genre = scanner.nextLine();
 
-        LOGGER.info("Enter new duration in minutes: ");
+        LOGGER.info("Enter new duration in minutes:");
         int duration = scanner.nextInt();
         scanner.nextLine();
 
-        LOGGER.info("Enter new release date (YYYY-MM-DD): ");
-        LocalDate releaseDate = LocalDate.parse(scanner.nextLine());
+        LOGGER.info("Enter new release date (YYYY-MM-DD):");
+        LocalDate releaseDate =
+                LocalDate.parse(scanner.nextLine());
 
         Movie movie = new Movie(
-                movieId,
+                selectedMovie.getMovieId(),
                 title,
                 language,
                 genre,
@@ -165,11 +231,63 @@ public class MovieController {
 
     private void deleteMovie() {
 
-        LOGGER.info("Enter movie ID: ");
-        int movieId = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Enter movie name:");
 
-        if (movieService.deleteMovie(movieId)) {
+        String movieName = scanner.nextLine();
+
+        if (movieName.trim().isEmpty()) {
+            LOGGER.warning("Movie name cannot be empty.");
+            return;
+        }
+
+        List<Movie> movies =
+                movieService.searchMoviesByName(movieName);
+
+        if (movies.isEmpty()) {
+            LOGGER.warning("Movie not found.");
+            return;
+        }
+
+        Movie selectedMovie;
+
+        if (movies.size() == 1) {
+
+            selectedMovie = movies.get(0);
+
+        } else {
+
+            LOGGER.info("");
+            LOGGER.info("===== MOVIES FOUND =====");
+
+            for (int i = 0; i < movies.size(); i++) {
+
+                Movie movie = movies.get(i);
+
+                LOGGER.info(
+                        (i + 1) + ". " +
+                                movie.getTitle() + " | " +
+                                movie.getLanguage() + " | " +
+                                movie.getGenre()
+                );
+            }
+
+            LOGGER.info("Select movie number:");
+
+            int movieChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (movieChoice <= 0 ||
+                    movieChoice > movies.size()) {
+
+                LOGGER.warning("Invalid movie selection.");
+                return;
+            }
+
+            selectedMovie = movies.get(movieChoice - 1);
+        }
+
+        if (movieService.deleteMovie(
+                selectedMovie.getMovieId())) {
 
             LOGGER.info("Movie deleted successfully!");
 

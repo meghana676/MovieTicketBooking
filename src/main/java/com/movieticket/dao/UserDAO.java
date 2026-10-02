@@ -17,6 +17,9 @@ public class UserDAO {
     private static final String FIND_USER_BY_EMAIL =
             "SELECT * FROM users WHERE email = ?";
 
+    private static final String FIND_USER_BY_ID =
+            "SELECT * FROM users WHERE user_id = ?";
+
 
     public User findUserByEmail(String email) {
 
@@ -26,23 +29,60 @@ public class UserDAO {
 
             statement.setString(1, email);
 
-            ResultSet resultSet = statement.executeQuery();
+            try (ResultSet resultSet = statement.executeQuery()) {
 
-            if (resultSet.next()) {
+                if (resultSet.next()) {
 
-                return new User(
-                        resultSet.getInt("user_id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email"),
-                        resultSet.getString("phone"),
-                        resultSet.getString("password"),
-                        resultSet.getString("role")
-                );
+                    return new User(
+                            resultSet.getInt("user_id"),
+                            resultSet.getString("name"),
+                            resultSet.getString("email"),
+                            resultSet.getString("phone"),
+                            resultSet.getString("password"),
+                            resultSet.getString("role")
+                    );
+                }
             }
 
         } catch (SQLException e) {
 
-            LOGGER.severe("Database error: " + e.getMessage());
+            LOGGER.severe(
+                    "Database error: " + e.getMessage()
+            );
+        }
+
+        return null;
+    }
+
+
+    public User findUserById(int userId) {
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(FIND_USER_BY_ID)) {
+
+            statement.setInt(1, userId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                if (resultSet.next()) {
+
+                    return new User(
+                            resultSet.getInt("user_id"),
+                            resultSet.getString("name"),
+                            resultSet.getString("email"),
+                            resultSet.getString("phone"),
+                            resultSet.getString("password"),
+                            resultSet.getString("role")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+
+            LOGGER.severe(
+                    "Database error: " + e.getMessage()
+            );
         }
 
         return null;
